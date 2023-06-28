@@ -5,6 +5,8 @@ env:
   AZURE_RESOURCE_GROUP: RG-IMPE  #set this to your resource group name 
   STORAGE_ACCOUNT: jonathan26407487773           #set this to your storage-account-name
   REGISTRY_NAME: myregistry_jonathan      #set this to your desired registry name
+  CONTAINER_NAME: mycontainer_jonathan    #set this to your desired container name
+  IMAGE_NAME: myimage_jonathan            #set this to the name of the image you want to use
 
 jobs:
   mon-job-azure:
@@ -59,5 +61,17 @@ jobs:
         name: RESOURCE_GROUP
         value: ${{ env.AZURE_RESOURCE_GROUP }}
         token: ${{ secrets.MY_PAT }}
+    
+    - name: Créer un conteneur Azure
+      uses: azure/CLI@v1
+      with:
+        azcliversion: latest
+        inlineScript: |
+          az container create \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --name ${{ env.CONTAINER_NAME }} \
+            --image ${{ env.IMAGE_NAME }} \
+            --dns-name-label ${{ env.CONTAINER_NAME }} \
+            --ports 80
     
     # Ajoutez ici les étapes supplémentaires pour exécuter des commandes d'administration sur des ressources Azure
