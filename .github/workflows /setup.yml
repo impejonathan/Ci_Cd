@@ -1,47 +1,17 @@
-name: Infra Deployment and Training
+name: Mon workflow Azure
+on: [push]
 
-# dès qu'on crée on modifie le fichier setup, cela recrée le setup
-on:
-  push:
-    paths: 
-      - '.github/workflows/setup.yml'
- 
- 
-# CONFIGURATION 
-#
-# 1. Set up the following secrets in your repository: 
-#   AZURE_RESOURCE_GROUP 
-#   STORAGE_ACCOUNT 
 env:
-  AZURE_RESOURCE_GROUP: RG-BENIAC  #set this to your resource group name 
-  STORAGE_ACCOUNT: storagemlopsbeniac           #set this to your storage-account-name
-    
-jobs:
-  deployment:
-    runs-on: ubuntu-latest
+  AZURE_RESOURCE_GROUP: RG-IMPE  #set this to your resource group name 
+  STORAGE_ACCOUNT: storagemlopsimpe           #set this to your storage-account-name
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
+jobs:
+  mon-job-azure:
+    runs-on: ubuntu-latest
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - name: Check Out Repository
-      id: checkout_repository
-      uses: actions/checkout@v2
-    
-    # Login to Azure
-    - name: Azure Login
-      id: azure_login
+    - name: Se connecter à Azure
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
     
-    # Deploys Azure resources (try)
-    - name: Deploy Azure resources
-      uses: azure/CLI@v1
-      with:
-        azcliversion: latest
-        inlineScript: |
-          az deployment group create \
-            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
-            --template-file $GITHUB_WORKSPACE/infra/deploy.core-infra.json \
-            --parameters $GITHUB_WORKSPACE/infra/params.deploy.core-infra.json \
-            patToken=${{secrets.PATTOKEN}} repo_name=$GITHUB_REPOSITORY DataLakestorageName=${{ env.STORAGE_ACCOUNT }}
+    # Ajoutez ici les étapes supplémentaires pour exécuter des commandes d'administration sur des ressources Azure
