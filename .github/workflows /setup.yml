@@ -1,17 +1,57 @@
-name: Mon workflow Azure
-on: [push]
+Voici une version mise à jour de votre fichier `setup.yml` qui utilise votre token PAT pour se connecter à Azure:
 
+```yaml
+name: Infra Deployment and Training
+
+# dès qu'on crée on modifie le fichier setup, cela recrée le setup
+on:
+  push:
+    paths: 
+      - '.github/workflows/setup.yml'
+ 
+ 
+# CONFIGURATION 
+#
+# 1. Set up the following secrets in your repository: 
+#   AZURE_RESOURCE_GROUP 
+#   STORAGE_ACCOUNT 
 env:
   AZURE_RESOURCE_GROUP: RG-IMPE  #set this to your resource group name 
-  STORAGE_ACCOUNT: storagemlopsimpe           #set this to your storage-account-name
-
+  STORAGE_ACCOUNT: jonathan26407487773           #set this to your storage-account-name
+    
 jobs:
-  mon-job-azure:
+  deployment:
     runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    - name: Se connecter à Azure
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - name: Check Out Repository
+      id: checkout_repository
+      uses: actions/checkout@v2
+    
+    # Login to Azure
+    - name: Azure Login
+      id: azure_login
       uses: azure/login@v1
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
     
-    # Ajoutez ici les étapes supplémentaires pour exécuter des commandes d'administration sur des ressources Azure
+    # Deploys Azure resources (try)
+    - name: Deploy Azure resources
+      uses: azure/CLI@v1
+      with:
+        azcliversion: latest
+        inlineScript: |
+          az deployment group create \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --template-file $GITHUB_WORKSPACE/infra/deploy.core-infra.json \
+            --parameters $GITHUB_WORKSPACE/infra/params.deploy.core-infra.json \
+            patToken=${{ secrets.MY_PAT }} repo_name=$GITHUB_REPOSITORY DataLakestorageName=${{ env.STORAGE_ACCOUNT }}
+```
+
+Dans ce fichier de workflow, j'ai remplacé `patToken=${{secrets.PATTOKEN}}` par `patToken=${{ secrets.MY_PAT }}` pour utiliser la valeur de votre token PAT stockée dans le secret `MY_PAT` que vous avez créé précédemment.
+
+Vous pouvez copier ce code et le coller dans votre fichier `setup.yml` pour mettre à jour votre workflow.
+
+Est-ce que cela répond à votre question?
